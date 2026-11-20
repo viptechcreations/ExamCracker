@@ -1,19 +1,35 @@
 // ==============================================================
-// GURU JI LIVE AI ENGINE (GITHUB PAGES & MOBILE CORS-FREE EDITION)
+// GURU JI LIVE AI ENGINE (POWERED BY OPENROUTER DEDICATED API)
 // ==============================================================
+
+const OPENROUTER_API_KEY = "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";
 
 const GuruAI = {
   isTyping: false,
   chatHistory: [],
 
-  // Short & Verified Exam Pattern Sheet
-  examFactsheet: `Official Patterns:
-- SSC MTS: 90 Qs, 270 Marks, 90 Mins. Session-1: Maths(20Q)+Reasoning(20Q) [Qualifying, No Negative]. Session-2: GK(25Q, 75M)+English(25Q, 75M) [Merit on Session-2, -1 negative].
-- SSC Steno (C & D): 200 Qs, 200 Marks, 2 Hrs, -0.25 negative. Reasoning(50Q), GK(50Q), English(100Q). No Maths! Skill: 80/100 wpm Shorthand.
-- SSC CGL/CHSL Tier-1: 100 Qs, 200 Marks, 60 Mins, -0.50 negative (Maths 25, Reasoning 25, English 25, GK 25).
-- SSC GD: 80 Qs, 160 Marks, 60 Mins, -0.25 negative (20 Q each: Maths, Reasoning, GK, Hindi/Eng).
-- UPSSSC PET: 100 Qs, 100 Marks, 2 Hrs, -0.25 negative.
-- RRB NTPC CBT-1: 100 Qs, 100 Marks, 90 Mins, -1/3 negative (GA 40, Maths 30, Reasoning 30).`,
+  // Official Indian Exam Knowledge Base
+  examFactsheet: `
+OFFICIAL EXAM PATTERNS (ALWAYS USE THIS EXACT DATA WHEN ASKED):
+1. SSC MTS (Computer Based Online Test):
+   - Total: 90 Questions, 270 Marks (3 Marks each), Total Time: 90 Minutes (45 Min per session).
+   - Session 1 (Qualifying, NO Negative Marking): Maths (20 Q, 60 Marks) + Reasoning (20 Q, 60 Marks).
+   - Session 2 (Merit Deciding, -1 Negative Marking per wrong answer): General Awareness/GK (25 Q, 75 Marks) + English (25 Q, 75 Marks).
+2. SSC Stenographer (Grade C & D - Online CBT):
+   - Total: 200 Questions, 200 Marks, Time: 2 Hours (120 Mins), Negative Marking: 0.25 marks.
+   - Sections: Reasoning (50 Q, 50 Marks), General Awareness (50 Q, 50 Marks), English Language (100 Q, 100 Marks). (NO Maths in Steno!).
+   - Skill Test: Shorthand Dictation (80 wpm for Grade D, 100 wpm for Grade C).
+3. SSC CHSL / CGL (Tier-1 Online CBT):
+   - Total: 100 Questions, 200 Marks (2 Marks each), Time: 60 Minutes, Negative Marking: 0.50 marks.
+   - Sections: Reasoning (25 Q), GK/GS (25 Q), Maths (25 Q), English (25 Q).
+4. SSC GD Constable:
+   - Total: 80 Questions, 160 Marks (2 Marks each), Time: 60 Minutes, Negative Marking: 0.25 marks.
+   - Sections: Reasoning (20 Q), GK/GS (20 Q), Maths (20 Q), Hindi/English (20 Q).
+5. RRB NTPC (CBT-1):
+   - Total: 100 Questions, 100 Marks, Time: 90 Minutes, Negative Marking: 1/3rd mark.
+   - Sections: General Awareness (40 Q), Maths (30 Q), Reasoning (30 Q).
+6. UPSSSC PET:
+   - Total: 100 Questions, 100 Marks, Time: 2 Hours, Negative Marking: 0.25 marks.`,
 
   getLoggedInUser() {
     try {
@@ -48,6 +64,7 @@ const GuruAI = {
     );
   },
 
+  // Boys = "Vishal Guru", Girls = "Priya Devi Ji"
   getFormattedTitleName() {
     const user = this.getLoggedInUser();
     if (user && user.name && user.name.trim()) {
@@ -86,69 +103,67 @@ const GuruAI = {
     this.isTyping = true;
     this.showThinking();
 
-    const systemInstruction = `Tum "Guru Ji" ho, India ke top competitive exam mentor. Student ka naam "${studentTitle}" hai.
+    const systemInstruction = `You are "Guru Ji", an extremely intelligent, friendly, and authentic Indian competitive exam AI Mentor (just like Google Gemini).
+The student you are talking to is "${studentTitle}".
+
 ${this.examFactsheet}
-Rules:
-1. Hamesha natural Hinglish (Hindi in English script) me baat karo. Pure English mat bolo.
-2. Student ko pyar se "${studentTitle}" keh kar bulao.
-3. Har sawal (Maths, Reasoning, GK, English, Steno, Strategy) ka bilkul sahi, step-by-step aur smart jawab do.
-4. Aakhir me Mahadev ka aashirwad do ki "${studentTitle}" ki sarkari job jaldi lage.`;
+
+CRITICAL INSTRUCTIONS:
+1. Language: ALWAYS speak in natural, conversational Hinglish (Hindi written in English alphabets, e.g., "Dekho ${studentTitle}, is sawal ko aise samjho..."). Never reply in pure formal English unless asked for English grammar/vocab.
+2. Personalization: Address the student warmly as "${studentTitle}" (if "${studentTitle}" ends with "Devi Ji", speak with feminine respect like "karti hain"; if "Guru", speak warmly like "karte ho").
+3. Intelligence & Accuracy: Give real, unscripted, step-by-step, and 100% accurate answers. Solve Maths/Reasoning problems step-by-step with short tricks. Explain GK/GS/English concepts clearly. If asked about SSC/Steno/Railway patterns, strictly follow the OFFICIAL EXAM PATTERNS above.
+4. Blessing: End your response naturally with Mahadev's blessing for "${studentTitle}" getting a government job.`;
 
     this.chatHistory.push({ role: "user", content: userQuestion });
-    if (this.chatHistory.length > 6) {
+    if (this.chatHistory.length > 8) {
       this.chatHistory.shift();
     }
 
-    // METHOD 1: CORS-Safe Simple POST Request (No Preflight Block on GitHub Pages)
-    try {
-      const response = await fetch("https://text.pollinations.ai/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain;charset=UTF-8" // Bypasses strict mobile CORS preflight
-        },
-        body: JSON.stringify({
-          messages: [
-            { role: "system", content: systemInstruction },
-            ...this.chatHistory
-          ],
-          model: "openai"
-        })
-      });
+    // Top Free High-Intelligence Models on OpenRouter (Auto-fallback chain)
+    const freeModels = [
+      "meta-llama/llama-3.3-70b-instruct:free",
+      "google/gemini-2.0-flash-exp:free",
+      "mistralai/mistral-small-3.1-24b-instruct:free",
+      "openrouter/free"
+    ];
 
-      if (response.ok) {
-        const aiText = await response.text();
-        if (aiText && aiText.trim().length > 5 && !aiText.includes("<!DOCTYPE")) {
-          this.isTyping = false;
-          this.chatHistory.push({ role: "assistant", content: aiText.trim() });
-          this.speak(aiText.trim());
-          return;
+    for (const modelId of freeModels) {
+      try {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://vip-2005.github.io/ExamCracker/",
+            "X-Title": "ExamCracker Guru Ji AI"
+          },
+          body: JSON.stringify({
+            model: modelId,
+            messages: [
+              { role: "system", content: systemInstruction },
+              ...this.chatHistory
+            ],
+            temperature: 0.6
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const aiReply = data.choices?.[0]?.message?.content;
+          if (aiReply && aiReply.trim().length > 5) {
+            this.isTyping = false;
+            this.chatHistory.push({ role: "assistant", content: aiReply.trim() });
+            this.speak(aiReply.trim());
+            return;
+          }
         }
+      } catch (err) {
+        console.warn(`Model ${modelId} busy, switching to next...`);
       }
-    } catch (e) {
-      console.warn("Method 1 fallback:", e);
-    }
-
-    // METHOD 2: Clean Short GET Endpoint (100% immune to CORS on all mobile browsers)
-    try {
-      const shortPrompt = `You are Guru Ji (Indian Exam Mentor). Address student as ${studentTitle}. Reply in Hinglish only. (${this.examFactsheet}). Question: ${userQuestion}`;
-      const url = `https://text.pollinations.ai/${encodeURIComponent(shortPrompt)}?model=openai&seed=${Date.now() % 10000}`;
-
-      const res = await fetch(url);
-      if (res.ok) {
-        const textReply = await res.text();
-        if (textReply && textReply.trim().length > 5) {
-          this.isTyping = false;
-          this.chatHistory.push({ role: "assistant", content: textReply.trim() });
-          this.speak(textReply.trim());
-          return;
-        }
-      }
-    } catch (e2) {
-      console.warn("Method 2 fallback:", e2);
     }
 
     this.isTyping = false;
-    this.speak(`Arey ${studentTitle}! Mobile network thoda slow lag raha hai, ek baar dobara 'Pucho' dabao! Har Har Mahadev! 🔱`);
+    this.speak(`Arey ${studentTitle}! Internet connection thoda slow ho gaya hai, ek baar dobara 'Pucho' dabao! Har Har Mahadev! 🔱`);
   },
 
   showThinking() {
@@ -156,7 +171,7 @@ Rules:
     const box = document.getElementById('guruSpeechBox');
     const text = document.getElementById('guruSpeechText');
     if (box && text) {
-      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">🧘‍♂️ Guru Ji ${studentTitle} ke sawal ka jawab likh rahe hain...</span>`;
+      text.innerHTML = `<span class="animate-pulse text-amber-600 font-bold">🧘‍♂️ Guru Ji ${studentTitle} ke liye soch rahe hain...</span>`;
       box.classList.remove('hidden');
     }
   },
@@ -192,15 +207,15 @@ Rules:
 
   askExamGoal() {
     const studentTitle = this.getFormattedTitleName();
-    this.askGuru(`Namaste Guru Ji! Mera naam ${studentTitle} hai. Mujhse pucho ki meri taiyari kaisi chal rahi hai.`);
+    this.askGuru(`Namaste Guru Ji! Mera naam ${studentTitle} hai. Mujhse pucho ki meri taiyari kaisi chal rahi hai aur aaj kaunsa subject padhna hai.`);
   },
 
   randomTip() {
-    this.askGuru("Exam me accuracy aur speed badhane ka sabse best tarika batao.");
+    this.askGuru("Exam crack karne ki ek practical strategy aur motivation batao.");
   }
 };
 
-// Navbar ka naam update karna jaise hi GuruAI load ho
+// Update navbar title immediately
 if (typeof updateAuthUI === 'function') {
   updateAuthUI();
 }
